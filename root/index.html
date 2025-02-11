@@ -3,74 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ripple Effect</title>
+    <title>Optimized Transparent Ripple Effect</title>
     <style>
-        body {
+        * {
             margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100vw;
             height: 100vh;
-            background-color: #000;
+            overflow: hidden;
         }
 
         .image-container {
-            position: relative;
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
             overflow: hidden;
-            display: inline-block;
         }
 
         .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            top: 0;
+            left: 0;
         }
 
-        .ripple {
+        /* The ripple distortion area */
+        .ripple-overlay {
             position: absolute;
-            width: 30px;
-            height: 30px;
-            background: rgba(255, 255, 255, 0.4);
+            width: 180px; /* Adjust ripple size */
+            height: 180px;
             border-radius: 50%;
             pointer-events: none;
-            transform: scale(1);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 80%);
             opacity: 0.6;
-            animation: ripple-animation 0.6s linear;
-        }
-
-        @keyframes ripple-animation {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
+            transform: scale(1);
+            transition: opacity 0.6s ease-out, transform 1s ease-out;
         }
     </style>
 </head>
 <body>
 
     <div class="image-container">
-        <img src="https://via.placeholder.com/600x400" id="rippleImage" alt="Ripple Effect Image">
+        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" id="rippleImage" alt="Background Image">
+        <div class="ripple-overlay"></div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const imageContainer = document.querySelector(".image-container");
+            const rippleOverlay = document.querySelector(".ripple-overlay");
 
-            imageContainer.addEventListener("mousemove", function (event) {
-                let rect = imageContainer.getBoundingClientRect();
-                let x = event.clientX - rect.left;
-                let y = event.clientY - rect.top;
+            document.addEventListener("mousemove", function (event) {
+                let x = event.clientX - rippleOverlay.offsetWidth / 2;
+                let y = event.clientY - rippleOverlay.offsetHeight / 2;
 
-                let ripple = document.createElement("div");
-                ripple.classList.add("ripple");
-                ripple.style.left = `${x}px`;
-                ripple.style.top = `${y}px`;
-
-                imageContainer.appendChild(ripple);
+                rippleOverlay.style.left = `${x}px`;
+                rippleOverlay.style.top = `${y}px`;
+                
+                // Reset animation
+                rippleOverlay.style.opacity = "0.6";
+                rippleOverlay.style.transform = "scale(1.3)";
 
                 setTimeout(() => {
-                    ripple.remove();
-                }, 600);
+                    rippleOverlay.style.opacity = "0";
+                    rippleOverlay.style.transform = "scale(2.5)";
+                }, 100);
             });
         });
     </script>
