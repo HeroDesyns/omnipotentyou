@@ -95,34 +95,3 @@
 
 </body>
 </html>
-
-
-    <div class="image-container">
-        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" id="rippleImage" alt="Ripple Effect Image">
-    </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const imageContainer = document.querySelector(".image-container");
-
-            imageContainer.addEventListener("mousemove", function (event) {
-                let rect = imageContainer.getBoundingClientRect();
-                let x = event.clientX - rect.left;
-                let y = event.clientY - rect.top;
-
-                let ripple = document.createElement("div");
-                ripple.classList.add("ripple");
-                ripple.style.left = `${x - 75}px`; /* Centers ripple */
-                ripple.style.top = `${y - 75}px`;
-
-                imageContainer.appendChild(ripple);
-
-                setTimeout(() => {
-                    ripple.remove();
-                }, 1200);
-            });
-        });
-    </script>
-
-</body>
-</html>

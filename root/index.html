@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Transparent Ripple Effect</title>
+    <title>Real Water Ripple Effect</title>
     <style>
         body {
             margin: 0;
@@ -24,29 +24,30 @@
             width: 100%;
             height: auto;
             display: block;
+            filter: url(#rippleEffect); /* Apply SVG distortion filter */
         }
 
         .ripple {
             position: absolute;
-            width: 80px; /* Smaller starting ripple */
-            height: 80px;
-            background: transparent;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 80%);
             border-radius: 50%;
             pointer-events: none;
             transform: scale(1);
-            opacity: 0.7;
-            animation: ripple-animation 1s ease-out;
-            filter: url(#rippleEffect); /* Applies SVG distortion effect */
+            opacity: 0.6;
+            animation: ripple-animation 1.2s ease-out;
+            mix-blend-mode: overlay; /* Ensures ripple is only a distortion */
         }
 
         @keyframes ripple-animation {
             0% {
                 transform: scale(1);
-                opacity: 0.6;
+                opacity: 0.5;
             }
             50% {
                 transform: scale(3);
-                opacity: 0.4;
+                opacity: 0.3;
             }
             100% {
                 transform: scale(4);
@@ -57,11 +58,12 @@
 </head>
 <body>
 
+    <!-- SVG Filter for Water Ripple Effect -->
     <svg width="0" height="0">
         <defs>
             <filter id="rippleEffect">
                 <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="turbulence"/>
-                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="10"/>
+                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15"/>
             </filter>
         </defs>
     </svg>
@@ -73,6 +75,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const imageContainer = document.querySelector(".image-container");
+            const image = document.querySelector("#rippleImage");
 
             imageContainer.addEventListener("mousemove", function (event) {
                 let rect = imageContainer.getBoundingClientRect();
@@ -81,17 +84,5 @@
 
                 let ripple = document.createElement("div");
                 ripple.classList.add("ripple");
-                ripple.style.left = `${x - 40}px`; /* Centers the ripple */
-                ripple.style.top = `${y - 40}px`;
-
-                imageContainer.appendChild(ripple);
-
-                setTimeout(() => {
-                    ripple.remove();
-                }, 1000);
-            });
-        });
-    </script>
-
-</body>
-</html>
+                ripple.style.left = `${x - 50}px`; /* Centers the ripple */
+        
