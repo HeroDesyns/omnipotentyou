@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peaceful Transparent Water Ripple</title>
+    <title>Subtle Mouse Distortion Effect</title>
     <style>
         * {
             margin: 0;
@@ -30,81 +30,40 @@
             position: absolute;
             width: 100vw;
             height: 100vh;
-            object-fit: cover; /* Ensures image fully covers screen */
+            object-fit: cover; /* Ensures full-screen image */
             top: 0;
             left: 0;
-            filter: url(#rippleEffect); /* Apply SVG distortion */
-        }
-
-        .ripple {
-            position: absolute;
-            width: 300px; /* Bigger ripples for smooth effect */
-            height: 300px;
-            background: transparent;
-            border-radius: 50%;
-            pointer-events: none;
-            transform: scale(1);
-            opacity: 0.5;
-            animation: ripple-animation 6s ease-out; /* Slower and smoother */
-            filter: url(#rippleEffect); /* Only distortion */
-        }
-
-        @keyframes ripple-animation {
-            0% {
-                transform: scale(1);
-                opacity: 0.5;
-            }
-            50% {
-                transform: scale(5);
-                opacity: 0.3;
-            }
-            100% {
-                transform: scale(10); /* Expands much more for a peaceful effect */
-                opacity: 0;
-            }
+            filter: url(#distortionEffect); /* Apply subtle distortion */
         }
     </style>
 </head>
 <body>
 
-    <!-- SVG Filter for Smooth Transparent Water Ripples -->
+    <!-- SVG Filter for Subtle Mouse Distortion Effect -->
     <svg width="0" height="0">
         <defs>
-            <filter id="rippleEffect">
+            <filter id="distortionEffect">
                 <feTurbulence type="turbulence" baseFrequency="0.005" numOctaves="2" seed="3" result="turbulence"/>
-                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="8"/>
+                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="5" xChannelSelector="R" yChannelSelector="G"/>
             </filter>
         </defs>
     </svg>
 
     <div class="image-container">
-        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" id="rippleImage" alt="Ripple Effect Image">
+        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" id="rippleImage" alt="Distortion Effect Image">
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const imageContainer = document.querySelector(".image-container");
-            let lastRippleTime = 0; // Prevents too many ripples
+            const image = document.querySelector("#rippleImage");
+            const filter = document.querySelector("filter");
 
-            imageContainer.addEventListener("mousemove", function (event) {
-                const now = Date.now();
-                if (now - lastRippleTime < 2000) return; // At least 2s between ripples
-                lastRippleTime = now;
+            document.addEventListener("mousemove", function (event) {
+                let x = event.clientX / window.innerWidth;
+                let y = event.clientY / window.innerHeight;
 
-                let rect = imageContainer.getBoundingClientRect();
-                let x = event.clientX - rect.left;
-                let y = event.clientY - rect.top;
-
-                let ripple = document.createElement("div");
-                ripple.classList.add("ripple");
-                ripple.style.left = `${x - 150}px`; /* Centered */
-                ripple.style.top = `${y - 150}px`;
-
-                imageContainer.appendChild(ripple);
-
-                setTimeout(() => {
-                    ripple.remove();
-                }, 6000); // Ripple disappears after full animation
+                // Adjust the turbulence effect slightly based on mouse position
+                filter.children[0].setAttribute("baseFrequency", `${0.005 + (y * 0.005)} ${0.005 + (x * 0.005)}`);
             });
         });
     </script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Transparent Water Ripple Effect</title>
+    <title>Peaceful Transparent Water Ripple</title>
     <style>
         * {
             margin: 0;
@@ -38,28 +38,28 @@
 
         .ripple {
             position: absolute;
-            width: 250px; /* Slightly larger ripples */
-            height: 250px;
+            width: 300px; /* Bigger ripples for smooth effect */
+            height: 300px;
             background: transparent;
             border-radius: 50%;
             pointer-events: none;
             transform: scale(1);
-            opacity: 0.8;
-            animation: ripple-animation 4.5s ease-out; /* Slower animation */
-            filter: url(#rippleEffect); /* Use distortion only */
+            opacity: 0.5;
+            animation: ripple-animation 6s ease-out; /* Slower and smoother */
+            filter: url(#rippleEffect); /* Only distortion */
         }
 
         @keyframes ripple-animation {
             0% {
                 transform: scale(1);
-                opacity: 0.8;
+                opacity: 0.5;
             }
             50% {
                 transform: scale(5);
-                opacity: 0.4;
+                opacity: 0.3;
             }
             100% {
-                transform: scale(9); /* Expands more */
+                transform: scale(10); /* Expands much more for a peaceful effect */
                 opacity: 0;
             }
         }
@@ -67,12 +67,12 @@
 </head>
 <body>
 
-    <!-- SVG Filter for Real Transparent Water Ripple Effect -->
+    <!-- SVG Filter for Smooth Transparent Water Ripples -->
     <svg width="0" height="0">
         <defs>
             <filter id="rippleEffect">
-                <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="3" seed="2" result="turbulence"/>
-                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15"/>
+                <feTurbulence type="turbulence" baseFrequency="0.005" numOctaves="2" seed="3" result="turbulence"/>
+                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="8"/>
             </filter>
         </defs>
     </svg>
@@ -84,22 +84,27 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const imageContainer = document.querySelector(".image-container");
+            let lastRippleTime = 0; // Prevents too many ripples
 
             imageContainer.addEventListener("mousemove", function (event) {
+                const now = Date.now();
+                if (now - lastRippleTime < 2000) return; // At least 2s between ripples
+                lastRippleTime = now;
+
                 let rect = imageContainer.getBoundingClientRect();
                 let x = event.clientX - rect.left;
                 let y = event.clientY - rect.top;
 
                 let ripple = document.createElement("div");
                 ripple.classList.add("ripple");
-                ripple.style.left = `${x - 125}px`; /* Centered */
-                ripple.style.top = `${y - 125}px`;
+                ripple.style.left = `${x - 150}px`; /* Centered */
+                ripple.style.top = `${y - 150}px`;
 
                 imageContainer.appendChild(ripple);
 
                 setTimeout(() => {
                     ripple.remove();
-                }, 4500);
+                }, 6000); // Ripple disappears after full animation
             });
         });
     </script>
