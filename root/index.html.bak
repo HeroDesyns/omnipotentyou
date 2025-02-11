@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subtle Mouse Distortion Effect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .image-container {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover; /* Ensures full-screen image */
+            top: 0;
+            left: 0;
+            filter: url(#distortionEffect); /* Apply subtle distortion */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SVG Filter for Subtle Mouse Distortion Effect -->
+    <svg width="0" height="0">
+        <defs>
+            <filter id="distortionEffect">
+                <feTurbulence type="turbulence" baseFrequency="0.005" numOctaves="2" seed="3" result="turbulence"/>
+                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="image-container">
+        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" id="rippleImage" alt="Distortion Effect Image">
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const image = document.querySelector("#rippleImage");
+            const filter = document.querySelector("filter");
+
+            document.addEventListener("mousemove", function (event) {
+                let x = event.clientX / window.innerWidth;
+                let y = event.clientY / window.innerHeight;
+
+                // Adjust the turbulence effect slightly based on mouse position
+                filter.children[0].setAttribute("baseFrequency", `${0.005 + (y * 0.005)} ${0.005 + (x * 0.005)}`);
+            });
+        });
+    </script>
+
+</body>
+</html>
