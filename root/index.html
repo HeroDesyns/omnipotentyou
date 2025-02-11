@@ -38,15 +38,15 @@
 
         .ripple {
             position: absolute;
-            width: 200px;
-            height: 200px;
+            width: 250px; /* Slightly larger ripples */
+            height: 250px;
             background: transparent;
             border-radius: 50%;
             pointer-events: none;
             transform: scale(1);
             opacity: 0.8;
-            animation: ripple-animation 3.5s ease-out;
-            filter: url(#rippleEffect); /* Apply only distortion, no color */
+            animation: ripple-animation 4.5s ease-out; /* Slower animation */
+            filter: url(#rippleEffect); /* Use distortion only */
         }
 
         @keyframes ripple-animation {
@@ -55,11 +55,11 @@
                 opacity: 0.8;
             }
             50% {
-                transform: scale(4);
-                opacity: 0.5;
+                transform: scale(5);
+                opacity: 0.4;
             }
             100% {
-                transform: scale(8);
+                transform: scale(9); /* Expands more */
                 opacity: 0;
             }
         }
@@ -67,18 +67,18 @@
 </head>
 <body>
 
-    <!-- SVG Filter for Transparent Water Ripple Effect -->
+    <!-- SVG Filter for Real Transparent Water Ripple Effect -->
     <svg width="0" height="0">
         <defs>
             <filter id="rippleEffect">
                 <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="3" seed="2" result="turbulence"/>
-                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="12"/>
+                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15"/>
             </filter>
         </defs>
     </svg>
 
     <div class="image-container">
-        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" id="rippleImage" alt="Ripple Effect Image">
+        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" alt="Ripple Effect Image">
     </div>
 
     <script>
@@ -92,14 +92,14 @@
 
                 let ripple = document.createElement("div");
                 ripple.classList.add("ripple");
-                ripple.style.left = `${x - 100}px`; /* Centered */
-                ripple.style.top = `${y - 100}px`;
+                ripple.style.left = `${x - 125}px`; /* Centered */
+                ripple.style.top = `${y - 125}px`;
 
                 imageContainer.appendChild(ripple);
 
                 setTimeout(() => {
                     ripple.remove();
-                }, 3500);
+                }, 4500);
             });
         });
     </script>
