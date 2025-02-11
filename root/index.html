@@ -5,39 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real Transparent Water Ripple Effect</title>
     <style>
-        body {
+        * {
             margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100vw;
             height: 100vh;
-            background-color: #000;
+            overflow: hidden;
         }
 
         .image-container {
             position: relative;
+            width: 100vw;
+            height: 100vh;
             overflow: hidden;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: url(#rippleEffect); /* Apply SVG distortion filter */
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover; /* Ensures the image fills the viewport without distortion */
+            filter: url(#rippleEffect); /* Apply the SVG distortion filter */
         }
 
         .ripple {
             position: absolute;
-            width: 200px; /* 2x Larger Ripple */
+            width: 200px; /* Larger ripples */
             height: 200px;
             background: transparent;
             border-radius: 50%;
             pointer-events: none;
             transform: scale(1);
             opacity: 0.6;
-            animation: ripple-animation 2.5s ease-out;
-            filter: url(#rippleEffect); /* Use the distortion filter */
+            animation: ripple-animation 3s ease-out;
+            filter: url(#rippleEffect); /* Apply the distortion */
         }
 
         @keyframes ripple-animation {
@@ -50,7 +57,7 @@
                 opacity: 0.3;
             }
             100% {
-                transform: scale(8); /* Expands even more */
+                transform: scale(8); /* Expands more */
                 opacity: 0;
             }
         }
@@ -62,14 +69,14 @@
     <svg width="0" height="0">
         <defs>
             <filter id="rippleEffect">
-                <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="turbulence"/>
-                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="20"/>
+                <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="turbulence"/>
+                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15"/>
             </filter>
         </defs>
     </svg>
 
     <div class="image-container">
-        <img src="https://via.placeholder.com/600x400" id="rippleImage" alt="Ripple Effect Image">
+        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" id="rippleImage" alt="Ripple Effect Image">
     </div>
 
     <script>
@@ -90,11 +97,12 @@
 
                 setTimeout(() => {
                     ripple.remove();
-                }, 2500);
+                }, 3000);
             });
         });
     </script>
 
 </body>
 </html>
+
 
