@@ -3,54 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Water Ripple Effect</title>
+    <title>Real Transparent Water Ripple Effect</title>
     <style>
-        body {
+        * {
             margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100vw;
             height: 100vh;
-            background-color: #000;
+            overflow: hidden;
         }
 
         .image-container {
-            position: relative;
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
             overflow: hidden;
-            display: inline-block;
         }
 
         .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: url(#rippleEffect); /* Apply SVG distortion filter */
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover; /* Ensures image fully covers screen */
+            top: 0;
+            left: 0;
+            filter: url(#rippleEffect); /* Apply SVG distortion */
         }
 
         .ripple {
             position: absolute;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 90%);
+            width: 250px; /* Slightly larger ripples */
+            height: 250px;
+            background: transparent;
             border-radius: 50%;
             pointer-events: none;
             transform: scale(1);
             opacity: 0.8;
-            animation: ripple-animation 1.2s ease-out;
-            mix-blend-mode: overlay; /* Ensures ripple is only a distortion */
+            animation: ripple-animation 4.5s ease-out; /* Slower animation */
+            filter: url(#rippleEffect); /* Use distortion only */
         }
 
         @keyframes ripple-animation {
             0% {
                 transform: scale(1);
-                opacity: 0.5;
+                opacity: 0.8;
             }
             50% {
-                transform: scale(3);
-                opacity: 0.3;
+                transform: scale(5);
+                opacity: 0.4;
             }
             100% {
-                transform: scale(4);
+                transform: scale(9); /* Expands more */
                 opacity: 0;
             }
         }
@@ -58,11 +67,11 @@
 </head>
 <body>
 
-    <!-- SVG Filter for Water Ripple Effect -->
+    <!-- SVG Filter for Real Transparent Water Ripple Effect -->
     <svg width="0" height="0">
         <defs>
             <filter id="rippleEffect">
-                <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="turbulence"/>
+                <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="3" seed="2" result="turbulence"/>
                 <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15"/>
             </filter>
         </defs>
@@ -75,7 +84,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const imageContainer = document.querySelector(".image-container");
-            const image = document.querySelector("#rippleImage");
 
             imageContainer.addEventListener("mousemove", function (event) {
                 let rect = imageContainer.getBoundingClientRect();
@@ -84,5 +92,17 @@
 
                 let ripple = document.createElement("div");
                 ripple.classList.add("ripple");
-                ripple.style.left = `${x - 50}px`; /* Centers the ripple */
-        
+                ripple.style.left = `${x - 125}px`; /* Centered */
+                ripple.style.top = `${y - 125}px`;
+
+                imageContainer.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 4500);
+            });
+        });
+    </script>
+
+</body>
+</html>
