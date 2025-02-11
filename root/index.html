@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js Fluid Simulation</title>
+    <title>Three.js Water Ripple Effect</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -31,27 +30,24 @@
 <body>
 
     <script>
-        let scene, camera, renderer, plane, uniforms, noise;
-        const mouse = { x: 0, y: 0 };
-        
+        let scene, camera, renderer, plane, uniforms;
+        let mouse = { x: 0, y: 0 };
+
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
             camera.position.z = 1;
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            noise = new SimplexNoise();
-
             uniforms = {
                 time: { value: 0 },
                 mouse: { value: new THREE.Vector2(0, 0) },
                 resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-                noiseScale: { value: 0.2 },
-                distortionStrength: { value: 0.1 },
-                texture: { value: new THREE.TextureLoader().load("https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg") }
+                distortionStrength: { value: 0.05 },
+                texture: { value: new THREE.TextureLoader().load("https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg") } // Change to your actual image URL
             };
 
             const geometry = new THREE.PlaneGeometry(2, 2);
@@ -68,20 +64,14 @@
                     uniform float time;
                     uniform vec2 mouse;
                     uniform sampler2D texture;
-                    uniform float noiseScale;
                     uniform float distortionStrength;
                     varying vec2 vUv;
-                    
-                    float random(vec2 st) {
-                        return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
-                    }
 
                     void main() {
-                        vec2 distortedUv = vUv;
-                        float dist = length(mouse - vUv);
-                        distortedUv.x += sin(time + vUv.y * 10.0) * distortionStrength * dist;
-                        distortedUv.y += cos(time + vUv.x * 10.0) * distortionStrength * dist;
-                        vec4 texColor = texture2D(texture, distortedUv);
+                        vec2 p = vUv;
+                        float dist = length(mouse - p);
+                        vec2 ripple = vec2(sin(time + dist * 10.0), cos(time + dist * 10.0)) * distortionStrength * exp(-dist * 8.0);
+                        vec4 texColor = texture2D(texture, p + ripple);
                         gl_FragColor = texColor;
                     }
                 `
@@ -106,7 +96,6 @@
         }
 
         window.addEventListener("resize", () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
@@ -117,4 +106,5 @@
 
 </body>
 </html>
+
 
