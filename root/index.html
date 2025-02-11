@@ -3,77 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Localized Mouse Distortion Effect</title>
+    <title>Ripple Effect</title>
     <style>
-        * {
+        body {
             margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             height: 100vh;
-            overflow: hidden;
+            background-color: #000;
         }
 
         .image-container {
-            position: absolute;
-            width: 100vw;
-            height: 100vh;
-            top: 0;
-            left: 0;
+            position: relative;
             overflow: hidden;
+            display: inline-block;
         }
 
         .image-container img {
-            position: absolute;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            top: 0;
-            left: 0;
-            filter: url(#distortionEffect);
+            width: 100%;
+            height: auto;
+            display: block;
         }
 
-        /* Invisible element that follows the cursor */
-        .ripple-overlay {
+        .ripple {
             position: absolute;
-            width: 150px; /* Smaller area */
-            height: 150px;
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             pointer-events: none;
-            filter: url(#distortionEffect);
+            transform: scale(1);
+            opacity: 0.6;
+            animation: ripple-animation 0.6s linear;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- SVG Filter for Localized Mouse Distortion Effect -->
-    <svg width="0" height="0">
-        <defs>
-            <filter id="distortionEffect">
-                <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="3" result="turbulence"/>
-                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15"/>
-            </filter>
-        </defs>
-    </svg>
-
     <div class="image-container">
-        <img src="https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg" id="rippleImage" alt="Distortion Effect Image">
-        <div class="ripple-overlay"></div>
+        <img src="https://via.placeholder.com/600x400" id="rippleImage" alt="Ripple Effect Image">
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const rippleOverlay = document.querySelector(".ripple-overlay");
+            const imageContainer = document.querySelector(".image-container");
 
-            document.addEventListener("mousemove", function (event) {
-                let x = event.clientX - 75; // Offset to center the effect
-                let y = event.clientY - 75;
+            imageContainer.addEventListener("mousemove", function (event) {
+                let rect = imageContainer.getBoundingClientRect();
+                let x = event.clientX - rect.left;
+                let y = event.clientY - rect.top;
 
-                rippleOverlay.style.left = `${x}px`;
-                rippleOverlay.style.top = `${y}px`;
+                let ripple = document.createElement("div");
+                ripple.classList.add("ripple");
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+
+                imageContainer.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
             });
         });
     </script>
