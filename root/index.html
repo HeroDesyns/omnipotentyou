@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ripple Effect</title>
+    <title>Transparent Ripple Effect</title>
     <style>
         body {
             margin: 0;
@@ -28,19 +28,24 @@
 
         .ripple {
             position: absolute;
-            width: 30px;
-            height: 30px;
-            background: rgba(255, 255, 255, 0.4);
+            width: 120px; /* Larger ripple effect */
+            height: 120px;
+            background: rgba(255, 255, 255, 0.15); /* Semi-transparent white */
             border-radius: 50%;
             pointer-events: none;
             transform: scale(1);
-            opacity: 0.6;
-            animation: ripple-animation 0.6s linear;
+            opacity: 0.3;
+            animation: ripple-animation 0.8s ease-out;
+            mix-blend-mode: overlay; /* Makes it blend naturally into the image */
         }
 
         @keyframes ripple-animation {
-            to {
-                transform: scale(4);
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            100% {
+                transform: scale(6); /* Expands more */
                 opacity: 0;
             }
         }
@@ -63,14 +68,14 @@
 
                 let ripple = document.createElement("div");
                 ripple.classList.add("ripple");
-                ripple.style.left = `${x}px`;
-                ripple.style.top = `${y}px`;
+                ripple.style.left = `${x - 60}px`; /* Centers ripple */
+                ripple.style.top = `${y - 60}px`;
 
                 imageContainer.appendChild(ripple);
 
                 setTimeout(() => {
                     ripple.remove();
-                }, 600);
+                }, 800);
             });
         });
     </script>
