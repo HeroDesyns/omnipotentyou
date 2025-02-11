@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js Water Ripple Effect</title>
+    <title>Transparent Fluid Ripple Effect</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
@@ -45,11 +45,10 @@
                 time: { value: 0 },
                 mouse: { value: new THREE.Vector2(0, 0) },
                 resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-                distortionStrength: { value: 0.04 },
-                texture: { value: new THREE.TextureLoader().load("https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg") } // Replace with your actual image URL
+                distortionStrength: { value: 0.03 },
+                texture: { value: new THREE.TextureLoader().load("https://via.placeholder.com/1920x1080") } // Replace with your image URL
             };
 
-            // Ensure the image fills the screen without black bars
             uniforms.texture.value.wrapS = THREE.RepeatWrapping;
             uniforms.texture.value.wrapT = THREE.RepeatWrapping;
 
@@ -73,7 +72,8 @@
                     void main() {
                         vec2 uv = vUv;
                         float dist = length(mouse - uv);
-                        vec2 ripple = vec2(sin(time + dist * 20.0), cos(time + dist * 20.0)) * distortionStrength * exp(-dist * 8.0);
+                        vec2 ripple = vec2(sin(time + dist * 10.0), cos(time + dist * 10.0)) 
+                                    * distortionStrength * exp(-dist * 6.0);
                         vec4 texColor = texture2D(texture, uv + ripple);
                         gl_FragColor = texColor;
                     }
@@ -94,7 +94,7 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            uniforms.time.value += 0.01;
+            uniforms.time.value += 0.005; // Slower animation for a more natural effect
             renderer.render(scene, camera);
         }
 
@@ -108,3 +108,4 @@
 
 </body>
 </html>
+
