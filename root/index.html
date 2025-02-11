@@ -15,7 +15,6 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            background: black;
         }
         canvas {
             display: block;
@@ -46,9 +45,13 @@
                 time: { value: 0 },
                 mouse: { value: new THREE.Vector2(0, 0) },
                 resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-                distortionStrength: { value: 0.05 },
-                texture: { value: new THREE.TextureLoader().load("https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg") } // Change to your actual image URL
+                distortionStrength: { value: 0.04 },
+                texture: { value: new THREE.TextureLoader().load("https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg") } // Replace with your actual image URL
             };
+
+            // Ensure the image fills the screen without black bars
+            uniforms.texture.value.wrapS = THREE.RepeatWrapping;
+            uniforms.texture.value.wrapT = THREE.RepeatWrapping;
 
             const geometry = new THREE.PlaneGeometry(2, 2);
             const material = new THREE.ShaderMaterial({
@@ -68,10 +71,10 @@
                     varying vec2 vUv;
 
                     void main() {
-                        vec2 p = vUv;
-                        float dist = length(mouse - p);
-                        vec2 ripple = vec2(sin(time + dist * 10.0), cos(time + dist * 10.0)) * distortionStrength * exp(-dist * 8.0);
-                        vec4 texColor = texture2D(texture, p + ripple);
+                        vec2 uv = vUv;
+                        float dist = length(mouse - uv);
+                        vec2 ripple = vec2(sin(time + dist * 20.0), cos(time + dist * 20.0)) * distortionStrength * exp(-dist * 8.0);
+                        vec4 texColor = texture2D(texture, uv + ripple);
                         gl_FragColor = texColor;
                     }
                 `
@@ -96,7 +99,6 @@
         }
 
         window.addEventListener("resize", () => {
-            camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
         });
@@ -106,5 +108,6 @@
 
 </body>
 </html>
+
 
 
