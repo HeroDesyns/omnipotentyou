@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Fluid Simulation</title>
+    <title>Subtle Water Ripple Effect</title>
     <style>
         * {
             margin: 0;
@@ -25,53 +25,128 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="fluidCanvas"></canvas>
+    <canvas id="c"></canvas>
 
-    <script src="https://cdn.jsdelivr.net/gh/PavelDoGreat/WebGL-Fluid-Simulation@master/dist/fluid.min.js"></script>
     <script>
-        var canvas = document.getElementById("fluidCanvas");
-        var config = {
-            SIM_RESOLUTION: 128,
-            DYE_RESOLUTION: 1024,
-            DENSITY_DISSIPATION: 0.98,
-            VELOCITY_DISSIPATION: 0.99,
-            PRESSURE: 0.8,
-            PRESSURE_ITERATIONS: 20,
-            CURL: 30,
-            SPLAT_RADIUS: 0.005, // Adjusts size of fluid effect
-            SHADING: true,
-            COLORFUL: true,
-            PAUSED: false,
-            BACK_COLOR: { r: 0, g: 0, b: 0 },
-        };
+        (function(){
+            var canvas = document.getElementById('c'),
+                ctx = canvas.getContext('2d'),
+                width = window.innerWidth,
+                height = window.innerHeight,
+                half_width = width >> 1,
+                half_height = height >> 1,
+                size = width * (height + 2) * 2,
 
-        var fluidSim = new Fluid(canvas, config);
+                delay = 30,
+                oldind = width,
+                newind = width * (height + 3),
 
-        // Load background image and draw it under the fluid
-        var img = new Image();
-        img.src = "https://via.placeholder.com/1920x1080"; // Replace with your image URL
-        img.onload = function () {
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        };
+                riprad = 3,
+                ripplemap = [],
+                last_map = [],
+                ripple,
+                texture;
 
-        // Mouse interaction for fluid
-        document.addEventListener("mousemove", function (e) {
-            let x = e.clientX / window.innerWidth;
-            let y = 1.0 - e.clientY / window.innerHeight;
-            let dx = (Math.random() - 0.5) * 10;
-            let dy = (Math.random() - 0.5) * 10;
-            let color = [Math.random(), Math.random(), Math.random()];
-            fluidSim.addSplat(x, y, dx, dy, color);
-        });
+            canvas.width = width;
+            canvas.height = height;
+
+            var image = new Image();
+            image.src = "https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg"; // Change to your actual image
+            image.onload = function() {
+                ctx.drawImage(image, 0, 0, width, height);
+                texture = ctx.getImageData(0, 0, width, height);
+                ripple = ctx.getImageData(0, 0, width, height);
+
+                for (var i = 0; i < size; i++) {
+                    last_map[i] = ripplemap[i] = 0;
+                }
+
+                setInterval(run, delay);
+            };
+
+            function run() {
+                newframe();
+                ctx.putImageData(ripple, 0, 0);
+            }
+
+            function disturb(dx, dy) {
+                dx <<= 0;
+                dy <<= 0;
+
+                for (var j = dy - riprad; j < dy + riprad; j++) {
+                    for (var k = dx - riprad; k < dx + riprad; k++) {
+                        ripplemap[oldind + (j * width) + k] += 128;
+                    }
+                }
+            }
+
+            function newframe() {
+                var a, b, data, cur_pixel, new_pixel, old_data;
+                var t = oldind; oldind = newind; newind = t;
+                var i = 0;
+
+                var _width = width,
+                    _height = height,
+                    _ripplemap = ripplemap,
+                    _last_map = last_map,
+                    _rd = ripple.data,
+                    _td = texture.data,
+                    _half_width = half_width,
+                    _half_height = half_height;
+
+                for (var y = 0; y < _height; y++) {
+                    for (var x = 0; x < _width; x++) {
+                        var _newind = newind + i, _mapind = oldind + i;
+                        data = (
+                            _ripplemap[_mapind - _width] + 
+                            _ripplemap[_mapind + _width] + 
+                            _ripplemap[_mapind - 1] + 
+                            _ripplemap[_mapind + 1]) >> 1;
+
+                        data -= _ripplemap[_newind];
+                        data -= data >> 5;
+
+                        _ripplemap[_newind] = data;
+
+                        data = 1024 - data;
+                        old_data = _last_map[i];
+                        _last_map[i] = data;
+
+                        if (old_data != data) {
+                            a = (((x - _half_width) * data / 1024) << 0) + _half_width;
+                            b = (((y - _half_height) * data / 1024) << 0) + _half_height;
+
+                            if (a >= _width) a = _width - 1;
+                            if (a < 0) a = 0;
+                            if (b >= _height) b = _height - 1;
+                            if (b < 0) b = 0;
+
+                            new_pixel = (a + (b * _width)) * 4;
+                            cur_pixel = i * 4;
+
+                            _rd[cur_pixel] = _td[new_pixel];
+                            _rd[cur_pixel + 1] = _td[new_pixel + 1];
+                            _rd[cur_pixel + 2] = _td[new_pixel + 2];
+                        }
+
+                        ++i;
+                    }
+                }
+            }
+
+            canvas.onmousemove = function(evt) {
+                disturb(evt.clientX, evt.clientY);
+            };
+
+        })();
     </script>
 
 </body>
 </html>
-
 

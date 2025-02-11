@@ -46,7 +46,7 @@
                 mouse: { value: new THREE.Vector2(0, 0) },
                 resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
                 distortionStrength: { value: 0.04 },
-                texture: { value: new THREE.TextureLoader().load("https://via.placeholder.com/1920x1080") } // Replace with your actual image URL
+                texture: { value: new THREE.TextureLoader().load("https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg") } // Replace with your actual image URL
             };
 
             // Ensure the image fills the screen without black bars
