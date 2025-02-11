@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subtle Water Ripple Effect</title>
+    <title>Three.js Fluid Simulation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         html, body {
             width: 100vw;
             height: 100vh;
             overflow: hidden;
             background: black;
         }
-
         canvas {
             display: block;
             position: absolute;
@@ -25,126 +25,94 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            object-fit: cover;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="c"></canvas>
-
     <script>
-        (function(){
-            var canvas = document.getElementById('c'),
-                ctx = canvas.getContext('2d'),
-                width = window.innerWidth,
-                height = window.innerHeight,
-                half_width = width >> 1,
-                half_height = height >> 1,
-                size = width * (height + 2) * 2,
+        let scene, camera, renderer, plane, uniforms, noise;
+        const mouse = { x: 0, y: 0 };
+        
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.z = 1;
 
-                delay = 30,
-                oldind = width,
-                newind = width * (height + 3),
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-                riprad = 3,
-                ripplemap = [],
-                last_map = [],
-                ripple,
-                texture;
+            noise = new SimplexNoise();
 
-            canvas.width = width;
-            canvas.height = height;
-
-            var image = new Image();
-            image.src = "https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg"; // Change to your actual image
-            image.onload = function() {
-                ctx.drawImage(image, 0, 0, width, height);
-                texture = ctx.getImageData(0, 0, width, height);
-                ripple = ctx.getImageData(0, 0, width, height);
-
-                for (var i = 0; i < size; i++) {
-                    last_map[i] = ripplemap[i] = 0;
-                }
-
-                setInterval(run, delay);
+            uniforms = {
+                time: { value: 0 },
+                mouse: { value: new THREE.Vector2(0, 0) },
+                resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                noiseScale: { value: 0.2 },
+                distortionStrength: { value: 0.1 },
+                texture: { value: new THREE.TextureLoader().load("https://static.wixstatic.com/media/3fe6e1_02a56c9991654cf8a070afc2fd98683d~mv2.jpg") }
             };
 
-            function run() {
-                newframe();
-                ctx.putImageData(ripple, 0, 0);
-            }
-
-            function disturb(dx, dy) {
-                dx <<= 0;
-                dy <<= 0;
-
-                for (var j = dy - riprad; j < dy + riprad; j++) {
-                    for (var k = dx - riprad; k < dx + riprad; k++) {
-                        ripplemap[oldind + (j * width) + k] += 128;
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            const material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: `
+                    varying vec2 vUv;
+                    void main() {
+                        vUv = uv;
+                        gl_Position = vec4(position, 1.0);
                     }
-                }
-            }
-
-            function newframe() {
-                var a, b, data, cur_pixel, new_pixel, old_data;
-                var t = oldind; oldind = newind; newind = t;
-                var i = 0;
-
-                var _width = width,
-                    _height = height,
-                    _ripplemap = ripplemap,
-                    _last_map = last_map,
-                    _rd = ripple.data,
-                    _td = texture.data,
-                    _half_width = half_width,
-                    _half_height = half_height;
-
-                for (var y = 0; y < _height; y++) {
-                    for (var x = 0; x < _width; x++) {
-                        var _newind = newind + i, _mapind = oldind + i;
-                        data = (
-                            _ripplemap[_mapind - _width] + 
-                            _ripplemap[_mapind + _width] + 
-                            _ripplemap[_mapind - 1] + 
-                            _ripplemap[_mapind + 1]) >> 1;
-
-                        data -= _ripplemap[_newind];
-                        data -= data >> 5;
-
-                        _ripplemap[_newind] = data;
-
-                        data = 1024 - data;
-                        old_data = _last_map[i];
-                        _last_map[i] = data;
-
-                        if (old_data != data) {
-                            a = (((x - _half_width) * data / 1024) << 0) + _half_width;
-                            b = (((y - _half_height) * data / 1024) << 0) + _half_height;
-
-                            if (a >= _width) a = _width - 1;
-                            if (a < 0) a = 0;
-                            if (b >= _height) b = _height - 1;
-                            if (b < 0) b = 0;
-
-                            new_pixel = (a + (b * _width)) * 4;
-                            cur_pixel = i * 4;
-
-                            _rd[cur_pixel] = _td[new_pixel];
-                            _rd[cur_pixel + 1] = _td[new_pixel + 1];
-                            _rd[cur_pixel + 2] = _td[new_pixel + 2];
-                        }
-
-                        ++i;
+                `,
+                fragmentShader: `
+                    uniform float time;
+                    uniform vec2 mouse;
+                    uniform sampler2D texture;
+                    uniform float noiseScale;
+                    uniform float distortionStrength;
+                    varying vec2 vUv;
+                    
+                    float random(vec2 st) {
+                        return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
                     }
-                }
-            }
 
-            canvas.onmousemove = function(evt) {
-                disturb(evt.clientX, evt.clientY);
-            };
+                    void main() {
+                        vec2 distortedUv = vUv;
+                        float dist = length(mouse - vUv);
+                        distortedUv.x += sin(time + vUv.y * 10.0) * distortionStrength * dist;
+                        distortedUv.y += cos(time + vUv.x * 10.0) * distortionStrength * dist;
+                        vec4 texColor = texture2D(texture, distortedUv);
+                        gl_FragColor = texColor;
+                    }
+                `
+            });
 
-        })();
+            plane = new THREE.Mesh(geometry, material);
+            scene.add(plane);
+
+            window.addEventListener("mousemove", (event) => {
+                mouse.x = event.clientX / window.innerWidth;
+                mouse.y = 1.0 - event.clientY / window.innerHeight;
+                uniforms.mouse.value.set(mouse.x, mouse.y);
+            });
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            uniforms.time.value += 0.01;
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener("resize", () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+        });
+
+        init();
     </script>
 
 </body>
